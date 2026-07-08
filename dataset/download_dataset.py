@@ -1,16 +1,15 @@
 """
-Download and extract the Forest Semantic Segmentation dataset.
+Download and extract the Forest Semantic Segmentation dataset
+This script downloads:
+    - Raw RGB images
+    - RGB annotation images
+    - Segmentation mapping
 
-The dataset is downloaded from Google Drive, extracted into:
-
-    datasets/data/
-
-The ZIP archive is automatically removed after extraction.
+The downloaded files are stored inside dataset/data/
 """
 
 from pathlib import Path
 import zipfile
-import shutil
 
 import gdown
 
@@ -19,55 +18,92 @@ import gdown
 # Configuration
 # =============================================================================
 
-FILE_ID = "13kJXmbjWLZlh45KpUkN2rqEfRbf64Iqs"
-DOWNLOAD_URL = f"https://drive.google.com/uc?id={FILE_ID}"
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 DATA_DIR = PROJECT_ROOT / "dataset" / "data"
-ZIP_PATH = DATA_DIR / "dataset.zip"
+
+RAW_IMAGES_ID = "13kJXmbjWLZlh45KpUkN2rqEfRbf64Iqs"
+ANNOTATIONS_ID = "1elQvgEjk2epBd4K0iee_RKLLIKXtwUIJ"
+MAPPING_ID = "1gYeIu3CawLkrhm1rPHsurLGrbTUd_KDu"
 
 
 # =============================================================================
 # Functions
 # =============================================================================
 
-def dataset_exists() -> bool:
+def _download_zip(file_id: str, output_dir: Path, archive_name: str):
     """
-    Check if the dataset exists
-
-    Returns: True if the dataset exists, False otherwise
-    """
-
-    return DATA_DIR.exists() and any(DATA_DIR.iterdir())
-
-def download_and_extract():
-    """
-    Download and extract the dataset from Google Drive.
-
-    The dataset is downloaded as a ZIP archive, extracted into the data directory,
-    and the ZIP archive is removed after extraction.
+    Download and extract a ZIP archive from Google Drive
+    :param file_id: id of the file to download
+    :param output_dir: directory to download and extract the archive
+    :param archive_name: name of the ZIP archive
     """
 
-    # Check if the dataset already exists
-    if dataset_exists():
-        print(f"Dataset already exists in {DATA_DIR}. Skipping download.")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    zip_path = output_dir / archive_name
+
+    if any(output_dir.iterdir()):
+        print(f"{output_dir.name} already exists. Skipping.")
         return
 
-    # Create the data directory if it doesn't exist
+    url = f"https://drive.google.com/uc?id={file_id}"
+
+    print(f"Downloading {output_dir.name}...")
+    gdown.download(url, str(zip_path), quiet=False)
+
+    print(f"Extracting {output_dir.name}...")
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+        zip_ref.extractall(output_dir)
+
+    zip_path.unlink()
+
+    print(f"{output_dir.name} downloaded successfully.\n")
+
+
+def _download_file(file_id: str, output_path: Path):
+    """
+    Download a single file from Google Drive.
+    :param file_id: id of the file to download
+    :param output_path: path to save the downloaded file
+    """
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if output_path.exists():
+        print(f"{output_path.name} already exists. Skipping.")
+        return
+
+    url = f"https://drive.google.com/uc?id={file_id}"
+
+    print(f"Downloading {output_path.name}...")
+    gdown.download(url, str(output_path), quiet=False)
+
+    print(f"{output_path.name} downloaded successfully.\n")
+
+
+def download_dataset():
+    """
+    Download the complete Forest Semantic Segmentation dataset.
+    """
+
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Download the dataset ZIP archive
-    print(f"Downloading dataset from {DOWNLOAD_URL}...")
-    gdown.download(DOWNLOAD_URL, str(ZIP_PATH), quiet=False)
+    _download_zip(
+        RAW_IMAGES_ID,
+        DATA_DIR / "images",
+        "images.zip"
+    )
 
-    # Extract the ZIP archive
-    print(f"Extracting dataset to {DATA_DIR}...")
-    with zipfile.ZipFile(ZIP_PATH, "r") as zip_ref:
-        zip_ref.extractall(DATA_DIR)
+    _download_zip(
+        ANNOTATIONS_ID,
+        DATA_DIR / "annotations",
+        "annotations.zip"
+    )
 
-    # Remove the ZIP archive
-    print(f"Removing ZIP archive {ZIP_PATH}...")
-    ZIP_PATH.unlink()
+    _download_file(
+        MAPPING_ID,
+        DATA_DIR / "segmentation_mapping.xlsx"
+    )
 
-    print("Dataset download and extraction complete.")
+    print("Dataset download completed.")
