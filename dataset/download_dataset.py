@@ -24,7 +24,7 @@ DOWNLOAD_URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-DATA_DIR = PROJECT_ROOT / "datasets" / "data"
+DATA_DIR = PROJECT_ROOT / "dataset" / "data"
 ZIP_PATH = DATA_DIR / "dataset.zip"
 
 
