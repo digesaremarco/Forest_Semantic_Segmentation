@@ -137,3 +137,31 @@ def image_summary(root_dir=DATA_DIR):
     print(f"Unique image sizes: {len(size_counts)}")
     for size, count in size_counts.items():
         print(f"Size {size}: {count} images")
+
+
+def compute_rgb_statistics(root_dir=DATA_DIR, max_images=None):
+    """
+    Compute RGB mean and standard deviation (Useful for normalization before training)
+    :param root_dir: root directory of dataset
+    :param max_images: maximum number of images to use for statistics (None for all)
+    :return: mean, std (each as a 3-element array for R, G, B channels)
+    """
+
+    train_images, test_images = find_images(root_dir)
+    all_images = train_images + test_images
+
+    if max_images:
+        all_images = all_images[:max_images]
+
+    pixels = []
+
+    for img_path in all_images:
+        img = Image.open(img_path).convert("RGB")
+        img = np.array(img) / 255.0
+        pixels.append(img.reshape(-1, 3))
+
+    pixels = np.concatenate(pixels, axis=0)
+    mean = pixels.mean(axis=0)
+    std = pixels.std(axis=0)
+
+    return mean, std
