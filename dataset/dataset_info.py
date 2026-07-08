@@ -27,6 +27,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "dataset" / "data"
 
 
+
 # =============================================================================
 # Dataset structure
 # =============================================================================
@@ -86,3 +87,53 @@ def count_files(root_dir=DATA_DIR):
     print(f"Total files: {train_count + test_count}")
 
     return train_count, test_count
+
+
+
+# =============================================================================
+# Image analysis
+# =============================================================================
+
+def find_images(root_dir=DATA_DIR):
+    """
+    Find images in the train and test folders.
+    :param root_dir: root directory of dataset
+    :return: list of image paths
+    """
+
+    root_dir = Path(root_dir)
+
+    train_dir = root_dir / "images" / "train"
+    test_dir = root_dir / "images" / "test"
+
+    train_images = list(train_dir.glob("*.png"))
+    test_images = list(test_dir.glob("*.png"))
+
+    return train_images, test_images
+
+def image_summary(root_dir=DATA_DIR):
+    """
+    Print basic image statistics
+    :param root_dir: root directory of dataset
+    """
+
+    train_images, test_images = find_images(root_dir)
+    all_images = train_images + test_images
+    print(f"Number of images: {len(all_images)}")
+
+    # Get image sizes
+    sizes = [Image.open(img).size for img in all_images]
+    widths, heights = zip(*sizes)
+
+    print(f"Image width range: {min(widths)} - {max(widths)}")
+    print(f"Max image width: {max(widths)}")
+    print(f"Min image width: {min(widths)}")
+    print(f"Image height range: {min(heights)} - {max(heights)}")
+    print(f"Max image height: {max(heights)}")
+    print(f"Min image height: {min(heights)}")
+
+    # Count unique sizes
+    size_counts = Counter(sizes)
+    print(f"Unique image sizes: {len(size_counts)}")
+    for size, count in size_counts.items():
+        print(f"Size {size}: {count} images")
