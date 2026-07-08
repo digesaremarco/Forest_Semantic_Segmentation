@@ -68,3 +68,21 @@ def print_dataset_structure(root_dir=DATA_DIR, max_depth=3, max_files=3):
                 files_per_dir[parent] = count + 1
 
 
+def count_files(root_dir=DATA_DIR):
+    """
+    Count files in the train and test folders.
+    """
+
+    root_dir = Path(root_dir)
+
+    train_dir = root_dir / "images" / "train"
+    test_dir = root_dir / "images" / "test"
+
+    train_count = sum(1 for p in train_dir.iterdir() if p.is_file())
+    test_count = sum(1 for p in test_dir.iterdir() if p.is_file())
+
+    print(f"Train files: {train_count}")
+    print(f"Test files:  {test_count}")
+    print(f"Total files: {train_count + test_count}")
+
+    return train_count, test_count
