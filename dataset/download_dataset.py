@@ -13,27 +13,21 @@ import zipfile
 
 import gdown
 
+from dataset.dataset_config_loader import (
+    DATA_DIR,
+    RAW_IMAGES_ID,
+    ANNOTATIONS_ID,
+    MAPPING_ID,
+)
 
-# =============================================================================
-# Configuration
-# =============================================================================
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-DATA_DIR = PROJECT_ROOT / "dataset" / "data"
-
-RAW_IMAGES_ID = "13kJXmbjWLZlh45KpUkN2rqEfRbf64Iqs"
-ANNOTATIONS_ID = "1elQvgEjk2epBd4K0iee_RKLLIKXtwUIJ"
-MAPPING_ID = "1gYeIu3CawLkrhm1rPHsurLGrbTUd_KDu"
-
-
-# =============================================================================
+# ----------------------------------------------------------------------------
 # Functions
-# =============================================================================
+# ----------------------------------------------------------------------------
 
 def _download_zip(file_id: str, output_dir: Path, archive_name: str):
     """
     Download and extract a ZIP archive from Google Drive
+
     :param file_id: id of the file to download
     :param output_dir: directory to download and extract the archive
     :param archive_name: name of the ZIP archive
@@ -63,7 +57,8 @@ def _download_zip(file_id: str, output_dir: Path, archive_name: str):
 
 def _download_file(file_id: str, output_path: Path):
     """
-    Download a single file from Google Drive.
+    Download a single file from Google Drive
+
     :param file_id: id of the file to download
     :param output_path: path to save the downloaded file
     """
@@ -84,7 +79,7 @@ def _download_file(file_id: str, output_path: Path):
 
 def download_dataset():
     """
-    Download the complete Forest Semantic Segmentation dataset.
+    Download the complete Forest Semantic Segmentation dataset
     """
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
