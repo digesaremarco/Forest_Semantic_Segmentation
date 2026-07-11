@@ -1,5 +1,5 @@
 """
-Dataset exploration utilities for Forest Semantic Segmentation.
+Dataset exploration utilities for Forest Semantic Segmentation
 
 This module provides functions to inspect:
     - dataset structure
@@ -8,33 +8,31 @@ This module provides functions to inspect:
     - dataset statistics
 
 """
-import os
 from pathlib import Path
 from collections import Counter
 
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 
 from PIL import Image
 
+from dataset.dataset_config_loader import (
+    TRAIN_IMAGE_DIR,
+    TEST_IMAGE_DIR,
+    TRAIN_MASK_DIR,
+    TEST_MASK_DIR,
+    DATA_DIR,
+    MAPPING_FILE
+)
 
-# =============================================================================
-# Configuration
-# =============================================================================
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-DATA_DIR = PROJECT_ROOT / "dataset" / "data"
-
-
-
-# =============================================================================
+# ----------------------------------------------------------------------------
 # Dataset structure
-# =============================================================================
+# ----------------------------------------------------------------------------
 
 def print_dataset_structure(root_dir=DATA_DIR, max_depth=3, max_files=3):
     """
-    Print the directory structure of the dataset up to a specified depth.
+    Print the directory structure of the dataset up to a specified depth
 
     :param root_dir: root directory of dataset
     :param max_depth: maximum depth to display
@@ -71,7 +69,9 @@ def print_dataset_structure(root_dir=DATA_DIR, max_depth=3, max_files=3):
 
 def count_files(root_dir=DATA_DIR):
     """
-    Count files in the train and test folders.
+    Count files in the train and test folders
+
+    :param root_dir: root directory of dataset
     """
 
     root_dir = Path(root_dir)
@@ -90,13 +90,14 @@ def count_files(root_dir=DATA_DIR):
 
 
 
-# =============================================================================
+# ----------------------------------------------------------------------------
 # Image analysis
-# =============================================================================
+# ----------------------------------------------------------------------------
 
 def find_images(root_dir=DATA_DIR):
     """
-    Find images in the train and test folders.
+    Find images in the train and test folders
+
     :param root_dir: root directory of dataset
     :return: list of image paths
     """
@@ -114,6 +115,7 @@ def find_images(root_dir=DATA_DIR):
 def image_summary(root_dir=DATA_DIR):
     """
     Print basic image statistics
+
     :param root_dir: root directory of dataset
     """
 
@@ -142,6 +144,7 @@ def image_summary(root_dir=DATA_DIR):
 def compute_rgb_statistics(root_dir=DATA_DIR, max_images=None):
     """
     Compute RGB mean and standard deviation (Useful for normalization before training)
+
     :param root_dir: root directory of dataset
     :param max_images: maximum number of images to use for statistics (None for all)
     :return: mean, std (each as a 3-element array for R, G, B channels)
@@ -165,3 +168,74 @@ def compute_rgb_statistics(root_dir=DATA_DIR, max_images=None):
     std = pixels.std(axis=0)
 
     return mean, std
+
+
+# ----------------------------------------------------------------------------
+# Mapping utilities
+# ----------------------------------------------------------------------------
+
+def load_class_mapping():
+    """
+    Load the segmentation mapping file
+    """
+
+    mapping = pd.read_excel(MAPPING_FILE, header=1)
+
+    mapping = mapping.iloc[:, :3] # First 3 columns
+    mapping.columns = ["id", "rgb", "class"]
+
+    mapping = mapping.dropna(subset=["id", "rgb", "class"])
+    mapping["id"] = mapping["id"].astype(int)
+
+    # RGB string -> tuple
+    mapping["rgb"] = mapping["rgb"].apply(
+        lambda x: tuple(
+            int(v.strip())
+            for v in str(x).split(",")
+        )
+    )
+
+    return mapping
+
+def list_classes():
+    """
+    Print all dataset classes.
+    """
+
+    mapping = load_class_mapping()
+
+    print("\nDataset classes\n")
+
+    for _, row in mapping.iterrows():
+
+        print(f"{row['id']:>2} : {row['class']}")
+
+
+# ----------------------------------------------------------------------------
+# Dataset summary
+# ----------------------------------------------------------------------------
+
+def dataset_summary():
+    """
+    Print a complete dataset summary
+    """
+
+    print("=" * 70)
+    print("Forest Semantic Segmentation Dataset")
+    print("=" * 70)
+
+    count_files()
+
+    print()
+
+    image_summary()
+
+    print()
+
+    list_classes()
+
+    print("\nRGB statistics")
+
+    mean, std = compute_rgb_statistics()
+    print(f"Mean: {mean}")
+    print(f"Std : {std}")
