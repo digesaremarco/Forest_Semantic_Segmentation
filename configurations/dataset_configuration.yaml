@@ -1,0 +1,21 @@
+dataset:
+  name: Forest Semantic Segmentation Dataset
+
+  root: dataset/data
+
+  images:
+    directory: images
+    train: train
+    test: test
+
+  annotations:
+    directory: annotations/unconverted_split_annotations
+    train: train
+    test: test
+
+  mapping_file: segmentation_mapping.xlsx
+
+  download:
+    raw_images_id: 13kJXmbjWLZlh45KpUkN2rqEfRbf64Iqs
+    annotations_id: 1elQvgEjk2epBd4K0iee_RKLLIKXtwUIJ
+    mapping_id: 1gYeIu3CawLkrhm1rPHsurLGrbTUd_KDu
