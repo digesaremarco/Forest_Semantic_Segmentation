@@ -28,7 +28,7 @@ def class_distribution(split="train"):
     """
     Compute the number of pixels belonging to each class.
 
-    :param split: either 'train' or 'test'
+    split: either 'train' or 'test'
     """
 
     if split == "train":
@@ -64,7 +64,7 @@ def print_class_distribution(split="train"):
     """
     Print percentage of pixels for each class
 
-    :param split: either 'train' or 'test'
+    split: either 'train' or 'test'
     """
 
     distribution = class_distribution(split)
@@ -87,8 +87,8 @@ def plot_class_distribution(split="train", normalize=True):
     """
     Plot class distribution
 
-    :param split: either 'train' or 'test'
-    :param normalize: whether to normalize the class distribution
+    split: either 'train' or 'test'
+    normalize: whether to normalize the class distribution
     """
 
     distribution = class_distribution(split)

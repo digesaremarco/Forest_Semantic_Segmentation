@@ -28,9 +28,9 @@ def _download_zip(file_id: str, output_dir: Path, archive_name: str):
     """
     Download and extract a ZIP archive from Google Drive
 
-    :param file_id: id of the file to download
-    :param output_dir: directory to download and extract the archive
-    :param archive_name: name of the ZIP archive
+    file_id: id of the file to download
+    output_dir: directory to download and extract the archive
+    archive_name: name of the ZIP archive
     """
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -59,8 +59,8 @@ def _download_file(file_id: str, output_path: Path):
     """
     Download a single file from Google Drive
 
-    :param file_id: id of the file to download
-    :param output_path: path to save the downloaded file
+    file_id: id of the file to download
+    output_path: path to save the downloaded file
     """
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

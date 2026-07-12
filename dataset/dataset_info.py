@@ -34,9 +34,9 @@ def print_dataset_structure(root_dir=DATA_DIR, max_depth=3, max_files=3):
     """
     Print the directory structure of the dataset up to a specified depth
 
-    :param root_dir: root directory of dataset
-    :param max_depth: maximum depth to display
-    :param max_files: maximum number of files to display per directory
+    root_dir: root directory of dataset
+    max_depth: maximum depth to display
+    max_files: maximum number of files to display per directory
     """
 
     root_dir = Path(root_dir)
@@ -71,7 +71,7 @@ def count_files(root_dir=DATA_DIR):
     """
     Count files in the train and test folders
 
-    :param root_dir: root directory of dataset
+    root_dir: root directory of dataset
     """
 
     root_dir = Path(root_dir)
@@ -98,8 +98,8 @@ def find_images(root_dir=DATA_DIR):
     """
     Find images in the train and test folders
 
-    :param root_dir: root directory of dataset
-    :return: list of image paths
+    root_dir: root directory of dataset
+    return: list of image paths
     """
 
     root_dir = Path(root_dir)
@@ -116,7 +116,7 @@ def image_summary(root_dir=DATA_DIR):
     """
     Print basic image statistics
 
-    :param root_dir: root directory of dataset
+    root_dir: root directory of dataset
     """
 
     train_images, test_images = find_images(root_dir)
@@ -145,9 +145,9 @@ def compute_rgb_statistics(root_dir=DATA_DIR, max_images=None):
     """
     Compute RGB mean and standard deviation (Useful for normalization before training)
 
-    :param root_dir: root directory of dataset
-    :param max_images: maximum number of images to use for statistics (None for all)
-    :return: mean, std (each as a 3-element array for R, G, B channels)
+    root_dir: root directory of dataset
+    max_images: maximum number of images to use for statistics (None for all)
+    return: mean, std (each as a 3-element array for R, G, B channels)
     """
 
     train_images, test_images = find_images(root_dir)
