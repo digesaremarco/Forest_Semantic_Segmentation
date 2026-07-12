@@ -15,6 +15,7 @@ import random
 
 import numpy as np
 import matplotlib.pyplot as plt
+import textwrap
 
 from PIL import Image
 
@@ -31,7 +32,7 @@ def show_image(image_path):
     """
     Display an RGB image
 
-    :param image_path: path to image
+    image_path: path to image
     """
 
     image = Image.open(image_path).convert("RGB")
@@ -46,7 +47,7 @@ def show_mask(mask_path):
     """
     Display a segmentation mask
 
-    :param mask_path: path to segmentation mask
+    mask_path: path to segmentation mask
     """
 
     mask = Image.open(mask_path).convert("RGB")
@@ -79,7 +80,7 @@ def show_overlay(image_path, mask_path, alpha=0.45):
     """
     Display an RGB image with segmentation overlay
 
-    :param alpha: transparency of the overlay (0.0 to 1.0)
+    alpha: transparency of the overlay (0.0 to 1.0)
     """
 
     image = np.array(Image.open(image_path).convert("RGB"))
@@ -98,7 +99,7 @@ def show_random_sample(split="train", overlay=False):
     """
     Display a random sample
 
-    :param overlay: whether to show the overlay of image and mask
+    overlay: whether to show the overlay of image and mask
     """
 
     if split not in ("train", "test"):
@@ -124,7 +125,7 @@ def show_samples_grid(split="train", n=9):
     """
     Display a grid of random RGB images
 
-    :param n: number of random images
+    n: number of random images
     """
 
     image_dir = TRAIN_IMAGE_DIR if split == "train" else TEST_IMAGE_DIR
@@ -159,7 +160,7 @@ def compare_samples(indices=None, split="train"):
     """
     Compare multiple samples
 
-    :param indices: list of indices to compare (None for random)
+    indices: list of indices to compare (None for random)
     """
 
     if split == "train":
@@ -203,29 +204,38 @@ def compare_samples(indices=None, split="train"):
 
 def show_class_legend():
     """
-    Display dataset classes with RGB colors
+    Display dataset classes with RGB colors in a compact grid layout
     """
 
     mapping = load_class_mapping()
     n_classes = len(mapping)
 
-    fig, ax = plt.subplots(figsize=(8, n_classes * 0.7))
+    n_cols = 8
+    n_rows = -(-n_classes // n_cols) # ceil division to get number of rows
+    cell_w, cell_h = 1.4, 1.3  # cell width and height in inches
+
+    fig, ax = plt.subplots(figsize=(n_cols * cell_w * 0.9, n_rows * cell_h * 0.9))
     ax.axis("off")
 
     for i, (_, row) in enumerate(mapping.iterrows()):
+        col = i % n_cols
+        r = i // n_cols
+
+        x = col * cell_w
+        y = (n_rows - r - 1) * cell_h
 
         rgb = row["rgb"]
         color = np.array(rgb) / 255.0
-        ax.add_patch(plt.Rectangle((0, n_classes - i - 1), 1, 0.8, color=color))
-        ax.text(
-            1.2,
-            n_classes - i - 1 + 0.4,
-            f"{row['id']} - {row['class']} RGB={rgb}",
-            verticalalignment="center",
-            fontsize=12
-        )
-    ax.set_xlim(0, 5)
-    ax.set_ylim(0, n_classes)
+
+        ax.add_patch(plt.Rectangle((x, y + 0.55), 1.0, 0.45, color=color, ec="black", linewidth=0.3))
+        label = f"{row['id']} - {row['class']}"
+        wrapped = "\n".join(textwrap.wrap(label, width=16))
+        ax.text(x + 0.5, y + 0.45, wrapped, ha="center", va="top", fontsize=7.5)
+        ax.text(x + 0.5, y + 0.05, f"{rgb}", ha="center", va="top", fontsize=6, color="gray") # RBG under the label
+
+    ax.set_xlim(-0.2, n_cols * cell_w)
+    ax.set_ylim(-0.2, n_rows * cell_h)
+    ax.set_aspect("equal")
     plt.title("Forest Dataset Classes", fontsize=14)
     plt.tight_layout()
     plt.show()
