@@ -78,7 +78,7 @@ class ForestDataLoader:
             split="train", indices=train_indices, transform=self.train_transform
         )
         self.validation_dataset = ForestDataset(
-            split="train", indices=val_indices, transform=self.train_transform
+            split="train", indices=val_indices, transform=self.test_transform
         )
         self.test_dataset = ForestDataset(split="test", transform=self.test_transform)
 
