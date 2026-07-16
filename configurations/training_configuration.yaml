@@ -21,7 +21,7 @@ training:
     monitor: validation_loss
 
   loss:
-    function: cross_entropy
+    function: cross_entropy # Options: cross_entropy, dice, dice_cross_entropy, focal, tversky
     ignore_index: 255
     class_weights: null
 
