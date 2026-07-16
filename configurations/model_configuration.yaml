@@ -1,0 +1,27 @@
+model:
+
+  architecture: segformer
+
+  backbone: b0
+
+  num_classes: 24
+
+  pretrained: true
+
+  ignore_index: 255
+
+  device: auto
+
+  checkpoint:
+    save_directory: checkpoints
+    save_best_only: true
+
+  huggingface:
+
+    segformer:
+      b0: nvidia/segformer-b0-finetuned-ade-512-512
+      b1: nvidia/segformer-b1-finetuned-ade-512-512
+      b2: nvidia/segformer-b2-finetuned-ade-512-512
+      b3: nvidia/segformer-b3-finetuned-ade-512-512
+      b4: nvidia/segformer-b4-finetuned-ade-512-512
+      b5: nvidia/segformer-b5-finetuned-ade-640-640
