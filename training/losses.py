@@ -161,3 +161,10 @@ class Losses:
             return tversky_loss
 
         return loss_fn
+
+    def get_loss(self):
+        """
+        Return selected loss function
+        """
+
+        return self.loss
