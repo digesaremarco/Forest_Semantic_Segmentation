@@ -128,3 +128,36 @@ class Losses:
             return ce_weight * ce_loss(logits, targets) + dice_weight * dice_loss(logits, targets)
 
         return loss_fn
+
+    def tversky_loss(self, alpha=0.5, beta=0.5):
+        """
+        Build loss function for semantic segmentation
+
+        alpha: weight for false positives
+        beta: weight for false negatives
+        """
+
+        def loss_fn(logits, targets):
+
+            num_classes = logits.shape[1]
+            probs = F.softmax(logits, dim=1)
+
+            targets = targets.clone()
+            valid_mask = (targets != self.ignore_index)
+            targets[~valid_mask] = 0
+            targets_one_hot = F.one_hot(targets, num_classes=num_classes).permute(0, 3, 1, 2).float()
+            valid_mask = valid_mask.unsqueeze(1)
+
+            probs = probs * valid_mask
+            targets_one_hot = targets_one_hot * valid_mask
+
+            true_pos = torch.sum(probs * targets_one_hot, dim=(0, 2, 3))
+            false_neg = torch.sum(targets_one_hot * (1 - probs), dim=(0, 2, 3))
+            false_pos = torch.sum((1 - targets_one_hot) * probs, dim=(0, 2, 3))
+
+            tversky_index = (true_pos + 1e-6) / (true_pos + alpha * false_pos + beta * false_neg + 1e-6)
+            tversky_loss = 1.0 - tversky_index.mean()
+
+            return tversky_loss
+
+        return loss_fn
