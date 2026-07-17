@@ -69,3 +69,31 @@ class Optimizer:
             raise ValueError("Unknown optimizer name")
 
         return optimizer
+
+    def get_optimizer(self):
+        """
+        Return the optimizer
+        """
+
+        return self.optimizer
+
+    def show_info(self):
+        """
+        Show info about the optimizer
+        """
+
+        print(f"Optimizer      : {self.optimizer_name}")
+        print(f"Learning rate  : {self.learning_rate}")
+        print(f"Weight decay   : {self.weight_decay}")
+
+        if self.optimizer_name == "adamw":
+            params = self.optimizer_parameters["adamw"]
+
+            print(f"Betas          : {params['betas']}")
+            print(f"Eps            : {params['eps']}")
+
+        elif self.optimizer_name == "sgd":
+            params = self.optimizer_parameters["sgd"]
+
+            print(f"Momentum       : {params['momentum']}")
+            print(f"Nesterov       : {params['nesterov']}")
