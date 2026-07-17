@@ -4,6 +4,7 @@ Loss functions for semantic segmentation.
 This module provides a wrapper around different loss functions
 used for training semantic segmentation models.
 """
+import pty
 
 import torch
 import torch.nn as nn
@@ -56,7 +57,7 @@ class Losses:
         """
 
         if self.class_weights is not None:
-            class_weights = torch.tensor(self.class_weights, dtype=torch.float32)
+            class_weights = torch.tensor(self.class_weights, dtype=torch.float32, device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
             return nn.CrossEntropyLoss(weight=class_weights, ignore_index=self.ignore_index)
         else:
             return nn.CrossEntropyLoss(ignore_index=self.ignore_index)
@@ -87,5 +88,26 @@ class Losses:
             dice_loss = 1.0 - dice.mean()
 
             return dice_loss
+
+        return loss_fn
+
+    def focal_loss(self, alpha=1.0, gamma=2.0):
+        """
+        Build loss function for semantic segmentation
+
+        alpha: weighting factor for the class imbalance
+        gamma: focusing parameter to reduce the loss for well-classified examples
+        """
+
+        ce_loss = nn.CrossEntropyLoss(reduction="none", ignore_index=self.ignore_index)
+
+        def loss_fn(logits, targets):
+
+            ce = ce_loss(logits, targets)
+            pt = torch.exp(-ce) # pt is the probability of the true class
+            focal_loss = alpha * (1 - pt) ** gamma * ce
+            valid_mask = (targets != self.ignore_index)
+
+            return focal_loss[valid_mask].mean()
 
         return loss_fn
