@@ -4,7 +4,6 @@ Loss functions for semantic segmentation.
 This module provides a wrapper around different loss functions
 used for training semantic segmentation models.
 """
-import pty
 
 import torch
 import torch.nn as nn
