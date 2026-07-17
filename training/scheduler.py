@@ -66,3 +66,55 @@ class Scheduler:
             raise ValueError(f"Scheduler '{self.scheduler_name}' not supported")
 
         return scheduler
+
+    def step(self):
+        """
+        Perform one scheduler step
+        """
+
+        if self.scheduler is not None:
+            self.scheduler.step()
+
+    def get_scheduler(self):
+
+        return self.scheduler
+
+    def get_learning_rate(self):
+        """
+        Return the current learning rate
+        """
+
+        if self.scheduler is not None:
+            return self.scheduler.get_last_lr()[0]
+        else:
+            return self.optimizer.param_groups[0]["lr"]
+
+    def show_info(self):
+        """
+        Print scheduler information.
+        """
+
+        print(f"Scheduler      : {self.scheduler_name}")
+
+        if self.scheduler_name == "none":
+            return
+
+        if self.scheduler_name == "cosine":
+            params = self.scheduler_parameters["cosine"]
+
+            print(f"T_max          : {EPOCHS}")
+            print(f"Eta min        : {params['eta_min']}")
+
+        elif self.scheduler_name == "polynomial":
+            params = self.scheduler_parameters["polynomial"]
+
+            print(f"Total epochs   : {EPOCHS}")
+            print(f"Power          : {params['power']}")
+
+        elif self.scheduler_name == "step":
+            params = self.scheduler_parameters["step"]
+
+            print(f"Step size      : {params['step_size']}")
+            print(f"Gamma          : {params['gamma']}")
+
+        print(f"Current LR     : {self.get_learning_rate()}")
