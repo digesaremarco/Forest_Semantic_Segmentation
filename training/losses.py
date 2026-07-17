@@ -111,3 +111,20 @@ class Losses:
             return focal_loss[valid_mask].mean()
 
         return loss_fn
+
+    def dice_cross_entropy(self, dice_weight=0.5, ce_weight=0.5):
+        """
+        Build loss function for semantic segmentation
+
+        dice_weight: weight for dice loss
+        ce_weight: weight for cross entropy loss
+        """
+
+        ce_loss = self.cross_entropy()
+        dice_loss = self.dice_loss()
+
+        def loss_fn(logits, targets):
+
+            return ce_weight * ce_loss(logits, targets) + dice_weight * dice_loss(logits, targets)
+
+        return loss_fn
