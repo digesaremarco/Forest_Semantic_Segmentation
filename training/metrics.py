@@ -46,3 +46,20 @@ class Metrics:
         total = y_true.numel() # numel() returns the total number of elements in the tensor
 
         return correct / total if total > 0 else 0.0
+
+    def mean_pixel_accuracy(self, y_pred, y_true):
+        """
+        Computes the mean pixel accuracy for semantic segmentation
+        """
+
+        # Flatten the predictions and ground truth labels
+        y_pred, y_true = self.flatten(y_pred, y_true)
+
+        # Compute the mean pixel accuracy
+        mean_acc = 0.0
+        for c in range(self.num_classes):
+            mask = y_true == c
+            if mask.sum() > 0:
+                mean_acc += (y_pred[mask] == c).sum().float() / mask.sum().float()
+
+        return mean_acc / self.num_classes if self.num_classes > 0 else 0.0
