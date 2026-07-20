@@ -61,3 +61,7 @@ OPTIMIZER_PARAMETERS = CONFIG["optimizer_parameters"]
 
 # Scheduler parameters
 SCHEDULER_PARAMETERS = CONFIG["scheduler_parameters"]
+
+# Logging
+LOG_DIRECTORY = PROJECT_ROOT / CONFIG["logging"]["save_directory"]
+LOG_FILENAME = CONFIG["logging"]["csv_filename"]
