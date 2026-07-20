@@ -142,3 +142,22 @@ class Metrics:
                 freq_weighted_iou += (mask.sum().float() / total_pixels) * (intersection / union)
 
         return freq_weighted_iou if total_pixels > 0 else torch.tensor(0.0)
+
+    def compute_metrics(self, y_pred, y_true):
+        """
+        Computes the metrics for semantic segmentation
+
+        return: (dict) A dictionary containing the computed metrics
+        """
+
+        metrics = {
+            "pixel_accuracy": self.pixel_accuracy(y_pred, y_true),
+            "mean_pixel_accuracy": self.mean_pixel_accuracy(y_pred, y_true),
+            "iou": self.iou(y_pred, y_true),
+            "mean_iou": self.mean_iou(y_pred, y_true),
+            "dice": self.dice(y_pred, y_true),
+            "mean_dice": self.mean_dice(y_pred, y_true),
+            "frequency_weighted_iou": self.frequency_weighted_iou(y_pred, y_true)
+        }
+
+        return metrics
