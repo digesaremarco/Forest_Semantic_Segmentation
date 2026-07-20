@@ -36,10 +36,8 @@ DEVICE = CONFIG["device"]
 
 
 # Checkpoints
-CHECKPOINT_DIR = (
-    PROJECT_ROOT /
-    CONFIG["checkpoint"]["save_directory"]
-)
+CHECKPOINT_DIR = (PROJECT_ROOT / CONFIG["checkpoint"]["save_directory"])
+CHECKPOINT_FILENAME = CONFIG["checkpoint"]["filename"]
 SAVE_BEST_ONLY = CONFIG["checkpoint"]["save_best_only"]
 
 
