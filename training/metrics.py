@@ -93,3 +93,22 @@ class Metrics:
 
         iou = self.iou(y_pred, y_true)
         return iou.mean() if len(iou) > 0 else torch.tensor(0.0)
+
+    def dice(self, y_pred, y_true):
+        """
+        Computes the dice coefficient for semantic segmentation
+        """
+
+        y_pred, y_true = self.flatten(y_pred, y_true)
+
+        dices = []
+        eps = 1e-6 # Epsilon to avoid division by zero
+        for c in range(self.num_classes):
+            mask = y_true == c
+            pred = y_pred == c
+
+            intersection = (pred & mask).sum().float()
+            dice_score = (2 * intersection) / (pred.sum().float() + mask.sum().float() + eps)
+            dices.append(dice_score)
+
+        return torch.stack(dices) if len(dices) > 0 else torch.tensor(0.0)
