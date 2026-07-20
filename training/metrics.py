@@ -112,3 +112,33 @@ class Metrics:
             dices.append(dice_score)
 
         return torch.stack(dices) if len(dices) > 0 else torch.tensor(0.0)
+
+    def mean_dice(self, y_pred, y_true):
+        """
+        Computes the mean dice coefficient for semantic segmentation
+        """
+
+        dice = self.dice(y_pred, y_true)
+        return dice.mean() if len(dice) > 0 else torch.tensor(0.0)
+
+    def frequency_weighted_iou(self, y_pred, y_true):
+        """
+        Computes the frequency weighted intersection over union for semantic segmentation
+        """
+
+        y_pred, y_true = self.flatten(y_pred, y_true)
+
+        freq_weighted_iou = 0.0
+        total_pixels = len(y_true)
+
+        for c in range(self.num_classes):
+            mask = y_true == c
+            pred = y_pred == c
+
+            intersection = (pred & mask).sum().float()
+            union = (pred | mask).sum().float()
+
+            if union > 0:
+                freq_weighted_iou += (mask.sum().float() / total_pixels) * (intersection / union)
+
+        return freq_weighted_iou if total_pixels > 0 else torch.tensor(0.0)
