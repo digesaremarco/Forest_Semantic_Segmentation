@@ -63,3 +63,33 @@ class Metrics:
                 mean_acc += (y_pred[mask] == c).sum().float() / mask.sum().float()
 
         return mean_acc / self.num_classes if self.num_classes > 0 else 0.0
+
+    def iou(self, y_pred, y_true):
+        """
+        Computes the intersection over union for semantic segmentation
+        """
+
+        y_pred, y_true = self.flatten(y_pred, y_true)
+
+        ious = []
+        for c in range(self.num_classes):
+            mask = y_true == c
+            pred = y_pred == c
+
+            intersection = (pred & mask).sum().float()
+            union = (pred | mask).sum().float()
+
+            if union > 0:
+                ious.append(intersection / union)
+            else:
+                ious.append(torch.tensor(0.0))
+
+        return torch.stack(ious) if len(ious) > 0 else torch.tensor(0.0)
+
+    def mean_iou(self, y_pred, y_true):
+        """
+        Computes the mean intersection over union for semantic segmentation
+        """
+
+        iou = self.iou(y_pred, y_true)
+        return iou.mean() if len(iou) > 0 else torch.tensor(0.0)
