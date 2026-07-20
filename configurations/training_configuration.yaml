@@ -41,3 +41,7 @@ training:
     step:
       step_size: 30
       gamma: 0.1
+
+  logging:
+    save_directory: logs
+    csv_filename: training_log.csv
