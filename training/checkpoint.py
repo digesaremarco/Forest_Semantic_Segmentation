@@ -1,0 +1,119 @@
+"""
+Checkpoint utilities
+
+This module provides a wrapper for saving and loading
+training checkpoints.
+"""
+
+from pathlib import Path
+
+import torch
+
+from models.model_config_loader import (
+    CHECKPOINT_DIR,
+    SAVE_BEST_ONLY,
+    CHECKPOINT_FILENAME,
+)
+
+
+class Checkpoint:
+
+    def __init__(self):
+
+        self.checkpoint_dir = CHECKPOINT_DIR
+        self.save_best_only = SAVE_BEST_ONLY
+        self.filename = CHECKPOINT_FILENAME
+
+        self.checkpoint_dir.mkdir(parents=True, exist_ok=True) # Create the checkpoint directory if it doesn't exist
+
+    def save_checkpoint(self, model, optimizer, scheduler, epoch, best_metric):
+        """
+        Saves the model checkpoint to the specified directory
+
+        model: (torch.nn.Module) The model to be saved
+        optimizer: (torch.optim.Optimizer) The optimizer used for training
+        scheduler: (torch.optim.lr_scheduler._LRScheduler) The learning rate scheduler used for training
+        epoch: (int) The current epoch number
+        best_metric: (float) The best metric value achieved during training
+        """
+
+        checkpoint = {
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "scheduler_state_dict": scheduler.state_dict() if scheduler else None, # Handle the case where scheduler is None
+            "epoch": epoch,
+            "best_metric": best_metric,
+        }
+
+        checkpoint_path = self.checkpoint_dir / self.filename
+        torch.save(checkpoint, checkpoint_path)
+
+    def load_checkpoint(self, model, optimizer=None, scheduler=None):
+        """
+        Loads the model checkpoint from the specified directory
+
+        return: (epoch, best_metric) where epoch is the last epoch number and best_metric is the best metric value achieved during training
+        """
+
+        checkpoint_path = self.checkpoint_dir / self.filename
+
+        if not checkpoint_path.exists():
+            raise FileNotFoundError(f"Checkpoint file '{self.filename}' not found in '{self.checkpoint_dir}'.")
+
+        checkpoint = torch.load(checkpoint_path)
+
+        model.load_state_dict(checkpoint["model_state_dict"])
+
+        if optimizer:
+            optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+
+        if scheduler and checkpoint["scheduler_state_dict"]:
+            scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+
+        epoch = checkpoint["epoch"]
+        best_metric = checkpoint["best_metric"]
+
+        return epoch, best_metric
+
+    def delete_checkpoint(self, filename="checkpoint.pth"):
+        """
+        Deletes the model checkpoint from the specified directory
+        """
+
+        checkpoint_path = self.checkpoint_dir / filename
+
+        if checkpoint_path.exists():
+            checkpoint_path.unlink() # Delete the checkpoint file
+
+    def checkpoint_exists(self, filename="checkpoint.pth"):
+        """
+        Checks if the model checkpoint exists in the specified directory
+
+        return: (bool) True if the checkpoint file exists, False otherwise
+        """
+
+        checkpoint_path = self.checkpoint_dir / filename
+        return checkpoint_path.exists()
+
+    def list_checkpoints(self):
+        """
+        Lists all the model checkpoints in the specified directory
+
+        return: (list) A list of checkpoint filenames
+        """
+
+        return [f.name for f in self.checkpoint_dir.glob("*.pth")]
+
+    def show_info(self):
+        """
+        Print checkpoint information
+        """
+
+        print("Checkpoint")
+        print(f"Directory       : {self.checkpoint_dir}")
+        print(f"Save best only  : {self.save_best_only}")
+
+        checkpoints = self.list_checkpoints()
+        print(f"Files           : {len(checkpoints)}")
+        for checkpoint in checkpoints:
+            print(f"  - {checkpoint.name}")
