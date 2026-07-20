@@ -23,7 +23,7 @@ class Metrics:
         """
 
         # Flatten the predictions and ground truth labels
-        y_pred = y_pred.view(-1) 
+        y_pred = y_pred.view(-1)
         y_true = y_true.view(-1)
 
         # Remove the ignored index from the ground truth labels
@@ -32,3 +32,17 @@ class Metrics:
         y_true = y_true[mask]
 
         return y_pred, y_true
+
+    def pixel_accuracy(self, y_pred, y_true):
+        """
+        Computes the pixel accuracy for semantic segmentation
+        """
+
+        # Flatten the predictions and ground truth labels
+        y_pred, y_true = self.flatten(y_pred, y_true)
+
+        # Compute the pixel accuracy
+        correct = (y_pred == y_true).sum().float()
+        total = y_true.numel() # numel() returns the total number of elements in the tensor
+
+        return correct / total if total > 0 else 0.0
