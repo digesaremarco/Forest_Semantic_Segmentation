@@ -10,6 +10,7 @@ import time
 import torch
 from tqdm import tqdm
 
+from training.metrics import Metrics
 from training.training_config_loader import (
     EPOCHS,
     MIXED_PRECISION,
@@ -120,7 +121,7 @@ class Trainer:
                 running_loss += loss.item()
 
                 predictions = torch.argmax(logits, dim=1) # Get the predicted class for each pixel
-                metrics = self.metrics.compute(predictions, masks)
+                metrics = self.metrics.compute_metrics(predictions, masks)
                 for key in running_metrics:
                     running_metrics[key] += float(metrics[key])
 
