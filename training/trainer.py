@@ -8,7 +8,6 @@ segmentation models.
 import time
 
 import torch
-from pip._vendor.rich import progress_bar
 from tqdm import tqdm
 
 from training.training_config_loader import (
@@ -57,7 +56,7 @@ class Trainer:
         self.model.train()
 
         running_loss = 0.0
-        progress_bar = tqdm(enumerate(self.train_loader), desc=f"Epoch {epoch + 1}/{self.epochs} [Train]", leave=False)
+        progress_bar = tqdm(self.train_loader, desc=f"Epoch {epoch + 1}/{self.epochs} [Train]", leave=False)
 
         for images, masks in progress_bar:
             images = images.to(self.device, non_blocking=True) # non_blocking=True allows for asynchronous data transfer to GPU
@@ -132,3 +131,59 @@ class Trainer:
             running_metrics[key] /= len(self.val_loader)
 
         return validation_loss, running_metrics
+
+    def train(self):
+        """
+        Execute the training loop
+
+        return: float, best metric value achieved during training
+        """
+
+        self.logger.clear_logs()
+        self.logger.initialize_logger()
+
+        print("Starting training...")
+        start_time = time.time()
+
+        for epoch in range(self.epochs):
+            epoch_start_time = time.time()
+
+            train_loss = self.train_epoch(epoch) # Training
+            validation_loss, running_metrics = self.validation_epoch(epoch) # Validation
+
+            if self.scheduler:
+                self.scheduler.step()
+
+            current_lr = self.optimizer.param_groups[0]['lr']
+
+            self.logger.log(epoch + 1, train_loss, validation_loss, current_lr, running_metrics) # Log the results
+
+            current_metric = running_metrics["mean_iou"]
+            if current_metric > self.best_metric:
+                self.best_metric = current_metric
+                self.checkpoint.save_checkpoint(self.model, self.optimizer, self.scheduler, epoch + 1, self.best_metric)
+
+            self.early_stopping.step(current_metric)
+            if self.early_stopping.should_stop():
+                print("Early stopping triggered")
+                break
+
+            epoch_end_time = time.time()
+            epoch_duration = epoch_end_time - epoch_start_time
+            print(
+                f"Epoch [{epoch + 1}/{self.epochs}] | "
+                f"Train Loss: {train_loss:.4f} | "
+                f"Validation Loss: {validation_loss:.4f} | "
+                f"mIoU: {running_metrics['mean_iou']:.4f} | "
+                f"Dice: {running_metrics['mean_dice']:.4f} | "
+                f"Pixel Acc: {running_metrics['pixel_accuracy']:.4f} | "
+                f"LR: {current_lr:.2e} | "
+                f"Time: {epoch_duration:.1f}s"
+            )
+
+        total_duration = time.time() - start_time
+        print("Training completed")
+        print(f"Best mIoU : {self.best_metric:.4f}")
+        print(f"Total time: {total_duration:.1f} s")
+
+        return self.best_metric
