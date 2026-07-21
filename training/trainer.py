@@ -8,6 +8,7 @@ segmentation models.
 import time
 
 import torch
+from pip._vendor.rich import progress_bar
 from tqdm import tqdm
 
 from training.training_config_loader import (
@@ -87,3 +88,47 @@ class Trainer:
 
         return epoch_loss
 
+    def validation_epoch(self, epoch):
+        """
+        Validate the model for one epoch
+
+        epoch: int, current epoch number
+        return: tuple, validation loss and metrics
+        """
+
+        self.model.eval()
+
+        running_loss = 0.0
+        running_metrics = {
+            "pixel_accuracy": 0.0,
+            "mean_pixel_accuracy": 0.0,
+            "mean_iou": 0.0,
+            "mean_dice": 0.0,
+            "frequency_weighted_iou": 0.0,
+        }
+        progress_bar = tqdm(self.val_loader, desc=f"Epoch {epoch + 1}/{self.epochs} [Validation]", leave=False)
+
+        with torch.no_grad():
+            for images, masks in progress_bar:
+                images = images.to(self.device, non_blocking=True)
+                masks = masks.to(self.device, non_blocking=True)
+
+                outputs = self.model(images)
+                logits = outputs.logits
+                logits = torch.nn.functional.interpolate(logits, size=masks.shape[-2:], mode="bilinear", align_corners=False)
+
+                loss = self.criterion(logits, masks)
+                running_loss += loss.item()
+
+                predictions = torch.argmax(logits, dim=1) # Get the predicted class for each pixel
+                metrics = self.metrics.compute(predictions, masks)
+                for key in running_metrics:
+                    running_metrics[key] += float(metrics[key])
+
+                progress_bar.set_postfix(loss=f"{loss.item():.4f}", mIoU=f"{metrics['mean_iou']:.4f}")
+
+        validation_loss = running_loss / len(self.val_loader)
+        for key in running_metrics:
+            running_metrics[key] /= len(self.val_loader)
+
+        return validation_loss, running_metrics
