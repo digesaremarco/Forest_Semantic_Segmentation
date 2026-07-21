@@ -121,4 +121,4 @@ class ForestDataset(Dataset):
             img = transformed["image"]
             mask = transformed["mask"]
 
-        return img, mask
+        return img, mask.long()
