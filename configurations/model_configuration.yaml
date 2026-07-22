@@ -1,15 +1,10 @@
 model:
 
   architecture: segformer
-
   backbone: b0
-
   num_classes: 24
-
   pretrained: true
-
   ignore_index: 255
-
   device: auto
 
   checkpoint:
