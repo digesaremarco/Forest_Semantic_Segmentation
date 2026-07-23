@@ -82,7 +82,7 @@ class Metrics:
             if union > 0:
                 ious.append(intersection / union)
             else:
-                ious.append(torch.tensor(0.0))
+                ious.append(intersection.new_tensor(0.0))
 
         return torch.stack(ious) if len(ious) > 0 else torch.tensor(0.0)
 
