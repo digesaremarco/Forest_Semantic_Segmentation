@@ -23,16 +23,15 @@ from dataset.dataset_info import (
 
 class Plots:
 
-    def __init__(self, save_directory:None):
-        """
-        save_directory: directory to save the plots
-        """
+    def __init__(self, save_directory=None):
 
         self.mapping = load_class_mapping()
         self.class_names = self.mapping["class"].tolist()
-        self.colors = self.mapping["rgb"].tolist()
 
+        self.colors_rgb = np.array(self.mapping["rgb"].tolist(), dtype=np.uint8)
+        self.colors = self.colors_rgb.astype(float) / 255.0
         self.save_directory = save_directory
+
         if self.save_directory:
             self.save_directory = Path(self.save_directory)
             self.save_directory.mkdir(parents=True, exist_ok=True)
@@ -47,7 +46,7 @@ class Plots:
 
         rgb_image = np.zeros((prediction.shape[0], prediction.shape[1], 3), dtype=np.uint8)
 
-        for class_id, color in enumerate(self.colors):
+        for class_id, color in enumerate(self.colors_rgb):
             rgb_image[prediction == class_id] = color
 
         return rgb_image
@@ -167,7 +166,7 @@ class Plots:
 
         plt.show()
 
-    def _load_logs(self, logger):
+    def load_logs(self, logger):
         """
         Load training logs from the logger
 
@@ -217,7 +216,7 @@ class Plots:
         Plot all metrics stored inside the logger
         """
 
-        data = self._load_logs(logger)
+        data = self.load_logs(logger)
 
         metrics = [key for key in data.keys() if key != "epoch"]
         n_metrics = len(metrics)
