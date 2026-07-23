@@ -75,9 +75,8 @@ class Plots:
                 Patch(facecolor=color, edgecolor="black", label=class_name)
             )
 
-        figure.legend(handles=legend_elements, loc="lower center", ncol=4, fontsize=9,
-                      frameon=True, bbox_to_anchor=(0.5, -0.02))
-
+        figure.legend(handles=legend_elements, loc="lower center", ncol=6, fontsize=9,
+                      frameon=True, bbox_to_anchor=(0.5, 0.01))
 
     def save_figure(self, fig, save_name):
         """
@@ -125,7 +124,7 @@ class Plots:
         """
 
         num_samples = len(images)
-        fig, axes = plt.subplots(num_samples, 3, figsize=figsize)
+        fig, axes = plt.subplots(num_samples, 3, figsize=(16, 5 * num_samples), squeeze=False)
 
         for i in range(num_samples):
             prediction_rgb = self.prediction_to_rgb(predictions[i])
@@ -142,7 +141,7 @@ class Plots:
                 ax.axis("off")
 
         self.add_legend(fig)
-        plt.tight_layout(rect=[0, 0.12, 1, 1])
+        plt.tight_layout(rect=[0, 0.08, 1, 1], h_pad=3)
 
         if save_name:
             self.save_figure(fig, save_name)
