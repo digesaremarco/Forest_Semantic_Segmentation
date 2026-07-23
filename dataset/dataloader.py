@@ -19,24 +19,15 @@ class ForestDataLoader:
     Forest Semantic Segmentation dataset.
     """
 
-    def __init__(
-        self,
-        batch_size=8,
-        validation_split=0.10,
-        shuffle=True,
-        random_seed=42,
-        num_workers=4,
-        pin_memory=True, # Enables page-locked memory allocation
-        train_transform=None,
-        test_transform=None,
-    ):
+    def __init__(self, batch_size=8, validation_split=0.10, shuffle=True, random_seed=42,
+        num_workers=4, pin_memory=True, train_transform=None, test_transform=None):
 
         self.batch_size = batch_size
         self.validation_split = validation_split
         self.shuffle = shuffle
         self.random_seed = random_seed
         self.num_workers = num_workers
-        self.pin_memory = pin_memory
+        self.pin_memory = pin_memory # Enables faster data transfer to GPU
 
         self.train_transform = train_transform
         self.test_transform = test_transform
