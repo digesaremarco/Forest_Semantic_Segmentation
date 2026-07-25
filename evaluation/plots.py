@@ -192,7 +192,7 @@ class Plots:
         Plot a single metric stored inside the logger
         """
 
-        data = self._load_logs(logger)
+        data = self.load_logs(logger)
 
         if metric_name not in data:
             raise ValueError(f"Metric '{metric_name}' not found")
