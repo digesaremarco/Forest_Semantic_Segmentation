@@ -96,18 +96,3 @@ class QualitativeEvaluation:
             predictions.append(prediction)
 
         self.plots.show_prediction_grid(images, predictions) #save_path=self.save_directory / "qualitative_evaluation.png" if self.save_directory else None)
-
-
-if __name__ == "__main__":
-
-    from models.segformer import SegFormer
-
-    segformer = SegFormer()
-
-    evaluator = QualitativeEvaluation(
-        model=segformer.get_model(),
-        device=segformer.device,
-        test_images_dir="test_images",
-    )
-
-    evaluator.evaluate(number_of_images=3)
