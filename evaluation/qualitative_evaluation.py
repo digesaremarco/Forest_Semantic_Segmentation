@@ -79,7 +79,7 @@ class QualitativeEvaluation:
         return np.array(image), prediction
 
 
-    def evaluate(self, number_of_images=3):
+    def evaluate_multiple(self, number_of_images=3):
         """
         Perform qualitative evaluation
         """
