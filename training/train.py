@@ -52,7 +52,7 @@ def main():
     print("Device:", device)
 
     # Load dataset
-    train_transforms = ForestTransforms().get_transforms()
+    train_transforms = ForestTransforms(augmentation=True).get_transforms()
     test_transforms = ForestTransforms(train=False).get_transforms()
 
     dataloader = ForestDataLoader(
