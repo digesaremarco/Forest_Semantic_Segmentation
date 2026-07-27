@@ -90,19 +90,21 @@ class Plots:
         else:
             print("Save directory not specified. Figure not saved.")
 
-    def show_prediction(self, image, prediction, figsize=(16,6), save_name=None):
+    def show_prediction(self, image, prediction, figsize=(16, 6), save_name=None):
         """
-         Display image, prediction and overlay
+        Display a single image with prediction
         """
-
-        prediction = self.prediction_to_rgb(prediction)
+        prediction_rgb = self.prediction_to_rgb(prediction)
         overlay = self.overlay_prediction(image, prediction)
 
         fig, axes = plt.subplots(1, 3, figsize=figsize)
+
         axes[0].imshow(image)
         axes[0].set_title("Image")
-        axes[1].imshow(prediction)
+
+        axes[1].imshow(prediction_rgb)
         axes[1].set_title("Prediction")
+
         axes[2].imshow(overlay)
         axes[2].set_title("Overlay")
 
