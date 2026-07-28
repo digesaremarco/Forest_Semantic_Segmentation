@@ -96,3 +96,20 @@ class QualitativeEvaluation:
             predictions.append(prediction)
 
         self.plots.show_prediction_grid(images, predictions) #save_path=self.save_directory / "qualitative_evaluation.png" if self.save_directory else None)
+
+    def evaluate_single(self, image_path):
+        """
+        Perform qualitative evaluation on a single image.
+
+        Args:
+            image_path (str | Path): Path to the image to evaluate.
+        """
+
+        self.load_model()
+
+        image_path = Path(image_path)
+        if not image_path.exists():
+            raise FileNotFoundError(f"Image not found: {image_path}")
+
+        image, prediction = self.predict(image_path)
+        self.plots.show_prediction(image, prediction)
