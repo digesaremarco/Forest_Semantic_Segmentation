@@ -99,10 +99,9 @@ class QualitativeEvaluation:
 
     def evaluate_single(self, image_path):
         """
-        Perform qualitative evaluation on a single image.
+        Perform qualitative evaluation on a single image
 
-        Args:
-            image_path (str | Path): Path to the image to evaluate.
+        image_path: path to the image to evaluate
         """
 
         self.load_model()
