@@ -82,7 +82,7 @@ class Metrics:
             if union > 0:
                 ious.append(intersection / union)
             else:
-                ious.append(intersection.new_tensor(0.0))
+                ious.append(torch.tensor(float("nan"), device=y_pred.device))
 
         return torch.stack(ious) if len(ious) > 0 else torch.tensor(0.0)
 
@@ -92,7 +92,7 @@ class Metrics:
         """
 
         iou = self.iou(y_pred, y_true)
-        return iou.mean() if len(iou) > 0 else torch.tensor(0.0)
+        return iou.nanmean() if len(iou) > 0 else torch.tensor(0.0)
 
     def dice(self, y_pred, y_true):
         """
