@@ -63,20 +63,36 @@ class Plots:
 
         return overlayed_image
 
-    def add_legend(self, figure):
+    def add_legend(self, figure, prediction):
         """
-        Add a legend to the figure
+        Add a legend to the figure showing the class names and their corresponding colors
         """
+
+        total_pixels = prediction.size
+        class_ids, counts = np.unique(prediction, return_counts=True)
+        order = np.argsort(counts)[::-1]
 
         legend_elements = []
 
-        for class_name, color in zip(self.class_names, self.colors):
+        for class_id, count in zip(class_ids[order], counts[order]):
+            percentage = 100 * count / total_pixels
+
             legend_elements.append(
-                Patch(facecolor=color, edgecolor="black", label=class_name)
+                Patch(
+                    facecolor=self.colors[class_id],
+                    edgecolor="black",
+                    label=f"{self.class_names[class_id]} ({percentage:.1f}%)",
+                )
             )
 
-        figure.legend(handles=legend_elements, loc="lower center", ncol=6, fontsize=9,
-                      frameon=True, bbox_to_anchor=(0.5, 0.01))
+        figure.legend(
+            handles=legend_elements,
+            loc="lower center",
+            ncol=min(6, len(legend_elements)),
+            fontsize=9,
+            frameon=True,
+            bbox_to_anchor=(0.5, 0.01),
+        )
 
     def save_figure(self, fig, save_name):
         """
@@ -111,7 +127,7 @@ class Plots:
         for ax in axes:
             ax.axis("off")
 
-        self.add_legend(fig)
+        self.add_legend(fig, prediction)
         plt.tight_layout(rect=[0, 0.12, 1, 1])
 
         if save_name:
@@ -119,14 +135,20 @@ class Plots:
 
         plt.show()
 
-    def show_prediction_grid(self, images, predictions, figsize=(16,6), save_name=None):
+    def show_prediction_grid(self, images, predictions, figsize=(16, 6), save_name=None):
         """
-        Display multiple predictions
+        Display multiple predictions.
         Layout: Image | Prediction | Overlay
         """
 
         num_samples = len(images)
-        fig, axes = plt.subplots(num_samples, 3, figsize=(16, 5 * num_samples), squeeze=False)
+
+        fig, axes = plt.subplots(
+            num_samples,
+            3,
+            figsize=(16, 5 * num_samples),
+            squeeze=False
+        )
 
         for i in range(num_samples):
             prediction_rgb = self.prediction_to_rgb(predictions[i])
@@ -134,15 +156,19 @@ class Plots:
 
             axes[i, 0].imshow(images[i])
             axes[i, 0].set_title("Image")
+
             axes[i, 1].imshow(prediction_rgb)
             axes[i, 1].set_title("Prediction")
+
             axes[i, 2].imshow(overlay)
             axes[i, 2].set_title("Overlay")
 
             for ax in axes[i]:
                 ax.axis("off")
 
-        self.add_legend(fig)
+        combined_prediction = np.concatenate([p.ravel() for p in predictions])
+        self.add_legend(fig, combined_prediction)
+
         plt.tight_layout(rect=[0, 0.08, 1, 1], h_pad=3)
 
         if save_name:
