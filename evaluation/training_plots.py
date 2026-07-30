@@ -1,8 +1,8 @@
 """
-Visualize training metrics.
+Visualize training metrics
 
 This module loads the training logs and displays
-all the curves generated during training.
+all the curves generated during training
 """
 
 from training.logger import Logger
@@ -38,7 +38,7 @@ class TrainingPlots:
 
     def compare_metric(self, metric_name):
         """
-        Compare one metric across all training runs.
+        Compare one metric across all training runs
         """
 
         log_names = [
