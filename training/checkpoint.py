@@ -6,6 +6,8 @@ training checkpoints.
 """
 
 from pathlib import Path
+import transformers
+import re
 
 import torch
 
@@ -48,6 +50,53 @@ class Checkpoint:
         checkpoint_path = self.checkpoint_dir / self.filename
         torch.save(checkpoint, checkpoint_path)
 
+
+    def convert_segformer_state_dict(self, state_dict):
+        """
+        Converts the state_dict of a SegFormer model to match the expected format for loading
+        """
+
+        converted = {}
+
+        for k, v in state_dict.items():
+
+            # stages -> encoder
+            m = re.match(r"segformer\.stages\.(\d+)\.patch_embeddings\.(.*)", k)
+
+            if m:
+                stage = m.group(1)
+                k = f"segformer.encoder.patch_embeddings.{stage}.{m.group(2)}"
+
+            m = re.match(r"segformer\.stages\.(\d+)\.blocks\.(\d+)\.(.*)", k)
+
+            if m:
+                stage = m.group(1)
+                block = m.group(2)
+                k = f"segformer.encoder.block.{stage}.{block}.{m.group(3)}"
+
+            m = re.match(r"segformer\.stages\.(\d+)\.layer_norm\.(.*)", k)
+
+            if m:
+                stage = m.group(1)
+                k = f"segformer.encoder.layer_norm.{stage}.{m.group(2)}"
+
+            # rename internals
+            k = k.replace(".layernorm_before.", ".layer_norm_1.")
+            k = k.replace(".layernorm_after.", ".layer_norm_2.")
+            k = k.replace(".attention.q_proj.", ".attention.self.query.")
+            k = k.replace(".attention.k_proj.", ".attention.self.key.")
+            k = k.replace(".attention.v_proj.", ".attention.self.value.")
+            k = k.replace(".attention.o_proj.", ".attention.output.dense.")
+            k = k.replace(".attention.sequence_reduction.sequence_reduction.", ".attention.self.sr.")
+            k = k.replace(".attention.sequence_reduction.layer_norm.", ".attention.self.layer_norm.")
+            k = k.replace(".mlp.fc1.", ".mlp.dense1.")
+            k = k.replace(".mlp.fc2.", ".mlp.dense2.")
+            k = k.replace("decode_head.linear_projections.", "decode_head.linear_c.")
+
+            converted[k] = v
+
+        return converted
+
     def load_checkpoint(self, model, optimizer=None, scheduler=None):
         """
         Loads the model checkpoint from the specified directory
@@ -61,6 +110,20 @@ class Checkpoint:
             raise FileNotFoundError(f"Checkpoint file '{self.filename}' not found in '{self.checkpoint_dir}'.")
 
         checkpoint = torch.load(checkpoint_path)
+
+        if transformers.__version__ <= "5.0.0":
+            state_dict = checkpoint["model_state_dict"]
+            state_dict = self.convert_segformer_state_dict(state_dict)
+            missing, unexpected = model.load_state_dict(state_dict, strict=False)
+
+            if missing:
+                print(f"Missing keys: {len(missing)}")
+                for k in missing:
+                    print(k)
+            if unexpected:
+                print(f"Unexpected keys: {len(unexpected)}")
+                for k in unexpected:
+                    print(k)
 
         model.load_state_dict(checkpoint["model_state_dict"])
 
