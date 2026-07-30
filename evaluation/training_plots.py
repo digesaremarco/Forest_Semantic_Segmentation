@@ -8,6 +8,10 @@ all the curves generated during training.
 from training.logger import Logger
 from evaluation.plots import Plots
 
+from training.training_config_loader import (
+    LOG_DIRECTORY,
+)
+
 
 class TrainingPlots:
 
@@ -31,3 +35,27 @@ class TrainingPlots:
         """
 
         self.plots.plot_metric(logger=self.logger, metric_name=metric_name)
+
+    def compare_metric(self, metric_name):
+        """
+        Compare one metric across all training runs.
+        """
+
+        log_names = [
+            "training_augmentation_focal_segfoermer_b1_log.csv",
+            "training_augmentation_tversky_segfoermer_b1_log.csv",
+            "training_augmentation_dice_ce_segfoermer_b1_log.csv",
+        ]
+
+        labels = [
+            "B1 - Focal",
+            "B1 - Tversky",
+            "B1 - Dice + CE",
+        ]
+
+        self.plots.compare_metric(
+            metric_name=metric_name,
+            log_directory=LOG_DIRECTORY,
+            log_names=log_names,
+            labels=labels,
+        )
