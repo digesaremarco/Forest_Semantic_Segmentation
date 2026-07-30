@@ -11,6 +11,7 @@ Supported plots:
 """
 
 from pathlib import Path
+import csv
 import numpy as np
 import math
 from matplotlib.patches import Patch
@@ -263,6 +264,77 @@ class Plots:
         # Hide unused axes
         for ax in axes[len(metrics):]:
             ax.axis("off")
+
+        plt.tight_layout()
+
+        if save_name:
+            self.save_figure(fig, save_name)
+
+        plt.show()
+
+    def load_log_files(self, log_file):
+        """
+        Load a training log from a csv file
+
+        log_file: path to csv log
+        return: dictionary containing all logged values
+        """
+
+        with open(log_file, "r") as file:
+            reader = csv.reader(file)
+            logs = list(reader)
+
+        if len(logs) <= 1:
+            raise RuntimeError(f"No training logs found in {log_file}")
+
+        header = logs[0]
+        rows = logs[1:]
+        data = {column: [] for column in header}
+
+        for row in rows:
+            for key, value in zip(header, row):
+                data[key].append(float(value))
+
+        return data
+
+    def compare_metric(self, metric_name, log_directory, log_names, labels=None,
+                       figsize=(8, 6),save_name=None):
+        """
+        Compare the same metric across multiple training runs
+
+        metric_name: metric to display
+        log_directory: directory containing the csv logs
+        log_names: list of csv filenames
+        labels: names shown in the legend
+        """
+
+        log_directory = Path(log_directory)
+
+        if labels is None:
+            labels = [Path(name).stem for name in log_names]
+
+        fig, ax = plt.subplots(figsize=figsize)
+
+        for log_name, label in zip(log_names, labels):
+
+            data = self.load_log_files(log_directory / log_name)
+
+            if metric_name not in data:
+                raise ValueError(f"Metric '{metric_name}' not found in {log_name}")
+
+            ax.plot(
+                data["epoch"],
+                data[metric_name],
+                linewidth=2,
+                label=label,
+            )
+
+        ax.set_title(metric_name.replace("_", " ").title())
+        ax.set_xlabel("Epoch")
+        ax.set_ylabel(metric_name)
+        ax.grid(True)
+
+        ax.legend()
 
         plt.tight_layout()
 
