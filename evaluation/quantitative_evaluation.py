@@ -79,6 +79,20 @@ class QuantitativeEvaluation:
 
         confusion = confusion_matrix(all_targets[valid_mask], all_predictions[valid_mask],
                                             labels=np.arange(self.metrics.num_classes))
+
+        tp = np.diag(confusion)
+        fp = confusion.sum(axis=0) - tp
+        fn = confusion.sum(axis=1) - tp
+        denom = tp + fp + fn
+
+        iou_per_class = np.divide(
+            tp,
+            denom,
+            out=np.full_like(tp, np.nan, dtype=float),
+            where=denom != 0
+        )
+
+        running_metrics["iou_per_class"] = iou_per_class
         running_metrics["confusion_matrix"] = confusion
         self.results = running_metrics
 
@@ -99,3 +113,10 @@ class QuantitativeEvaluation:
         print(f"Mean IoU              : {self.results['mean_iou']:.4f}")
         print(f"Mean Dice             : {self.results['mean_dice']:.4f}")
         print(f"Frequency Weighted IoU: {self.results['frequency_weighted_iou']:.4f}")
+
+        print("\nIoU per class:")
+        for c, iou in enumerate(self.results["iou_per_class"]):
+            if np.isnan(iou):
+                print(f"Class {c}: N/A")
+            else:
+                print(f"Class {c}: {iou:.4f}")
