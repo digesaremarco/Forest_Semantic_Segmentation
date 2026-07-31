@@ -128,7 +128,7 @@ class Losses:
 
         return loss_fn
 
-    def tversky_loss(self, alpha=0.5, beta=0.5):
+    def tversky_loss(self, alpha=0.3, beta=0.7):
         """
         Build loss function for semantic segmentation
 
