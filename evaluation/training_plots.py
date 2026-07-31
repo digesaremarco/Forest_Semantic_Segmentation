@@ -45,12 +45,14 @@ class TrainingPlots:
             "training_augmentation_focal_segfoermer_b1_log.csv",
             "training_augmentation_tversky_segfoermer_b1_log.csv",
             "training_augmentation_dice_ce_segfoermer_b1_log.csv",
+            "training_augmentation_dice_segfoermer_b1_log.csv",
         ]
 
         labels = [
             "B1 - Focal",
             "B1 - Tversky",
             "B1 - Dice + CE",
+            "B1 - Dice",
         ]
 
         self.plots.compare_metric(
