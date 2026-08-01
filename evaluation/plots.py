@@ -178,7 +178,7 @@ class Plots:
         plt.show()
 
 
-    def confusion_matrix(self, confusion_matrix, normalize=False, figsize=(12, 12), save_name=None):
+    def confusion_matrix(self, confusion_matrix, normalize=False, figsize=(16, 16), save_name=None):
         """
         Plot the confusion matrix
         """
