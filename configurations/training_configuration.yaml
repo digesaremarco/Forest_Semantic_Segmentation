@@ -1,7 +1,7 @@
 training:
 
-  epochs: 100
-  batch_size: 8
+  epochs: 150
+  batch_size: 16
   learning_rate: 0.00006
   weight_decay: 0.01
   optimizer: adamw # Options: adam, adamw, sgd
@@ -16,12 +16,12 @@ training:
   gradient_clipping: 1.0
 
   early_stopping:
-    enabled: true
+    enabled: false
     patience: 15
     monitor: validation_loss
 
   loss:
-    function: cross_entropy # Options: cross_entropy, dice, dice_cross_entropy, focal, tversky
+    function: tversky # Options: cross_entropy, dice, dice_cross_entropy, focal, tversky
     ignore_index: 255
     class_weights: null
 
@@ -44,4 +44,4 @@ training:
 
   logging:
     save_directory: logs
-    csv_filename: training_log.csv
+    csv_filename: segformerb1_tversky_log.csv
