@@ -42,10 +42,10 @@ class TrainingPlots:
         """
 
         log_names = [
-            "training_augmentation2_focal_segfoermer_b1_log.csv",
-            "training_augmentation2_tversky_segfoermer_b1_log.csv",
-            "training_augmentation2_dice_ce_segfoermer_b1_log.csv",
-            "training_augmentation2_dice_segfoermer_b1_log.csv",
+            "segformerb1_focal_log.csv",
+            "segformerb1_tversky_log.csv",
+            "segformerb1_dice_ce_log.csv",
+            "segformerb1_dice_log.csv",
         ]
 
         labels = [
