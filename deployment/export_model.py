@@ -60,9 +60,7 @@ BENCHMARK_TENSORRT = False
 class ExportWrapper(nn.Module):
     """
     Wraps the SegFormer model so the exported graph outputs the final
-    class map (H, W) instead of the raw low-resolution logits. This
-    moves the resize + argmax that would otherwise happen in Python
-    post-processing into the exported graph itself.
+    class map (H, W) instead of the raw low-resolution logits.
     """
 
     def __init__(self, model, out_height, out_width):
@@ -82,7 +80,7 @@ class ExportWrapper(nn.Module):
             align_corners=False,
         )
 
-        class_map = upsampled.argmax(dim=1).to(torch.int32)
+        class_map = F.softmax(upsampled, dim=1)
 
         return class_map
 
