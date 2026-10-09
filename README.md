@@ -10,7 +10,6 @@ This repository covers **only the segmentation training and evaluation stage**: 
 
 Not every class is relevant to the downstream mapping/navigation task; the classes that actually drive traversability estimation are `tree`, `rock`, `water` (streams), `grass` / `tall grass`, `generic ground`, and `sky`. The remaining classes are kept during training for completeness of the segmentation head but play a minor role downstream.
 
-<!-- TODO: se vuoi, aggiungi qui una tabella con il numero di immagini train/val/test, come nella tabella "Dataset" dell'esempio ChessQ -->
 
 ## Experimental Setup
 
@@ -61,7 +60,8 @@ Given that the numeric gap between configurations was small and rock detection m
 
 <img src="assets/plots.png" width="750">
 
-Training/validation loss and pixel-level metrics (pixel accuracy, mean pixel accuracy, mean IoU, mean Dice, frequency-weighted IoU) over 150 epochs, computed on the whole validation set from an accumulated confusion matrix. The learning rate follows a cosine schedule from 6e-5 down to 1e-6. Training and validation losses decrease together and stay close throughout, with no sign of overfitting; metrics converge around epoch 100, with the best validation mean IoU (≈ 0.44) reached around epoch 115–120 and selected as the final checkpoint. Mean pixel accuracy settles around 0.59 and frequency-weighted IoU around 0.77: FWIoU sits well above mean IoU because the segmentation is dominated by a few large, easy classes (ground, tree, sky), while mean IoU is pulled down by rare/hard classes. The absolute value of the Tversky loss does not approach zero, since classes absent from a batch still contribute to the per-class average.### Qualitative Results
+Training/validation loss and pixel-level metrics (pixel accuracy, mean pixel accuracy, mean IoU, mean Dice, frequency-weighted IoU) over 150 epochs, computed on the whole validation set from an accumulated confusion matrix. The learning rate follows a cosine schedule from 6e-5 down to 1e-6. Training and validation losses decrease together and stay close throughout, with no sign of overfitting; metrics converge around epoch 100, with the best validation mean IoU (≈ 0.44) reached around epoch 115–120 and selected as the final checkpoint. Mean pixel accuracy settles around 0.59 and frequency-weighted IoU around 0.77: FWIoU sits well above mean IoU because the segmentation is dominated by a few large, easy classes (ground, tree, sky), while mean IoU is pulled down by rare/hard classes. The absolute value of the Tversky loss does not approach zero, since classes absent from a batch still contribute to the per-class average.
+### Qualitative Results
 
 Predictions on real photographs taken in the Vallombrosa forest — a genuine sim-to-real test, since the model is trained purely on synthetic ForestSim data and had never seen these scenes:
 
